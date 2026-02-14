@@ -450,7 +450,13 @@ class OllamaWebUI {
                     body: JSON.stringify({
                         model: this.model,
                         messages: [{ role: 'user', content: '你好' }],
-                        stream: false
+                        stream: false,
+                        options: {
+                            temperature: 0.6,
+                            repeat_penalty: 1.1,
+                            top_p: 0.9,
+                            top_k: 40
+                        }
                     }),
                     signal: controller.signal
                 });
@@ -817,7 +823,13 @@ ${pageText}\n\n`;
             const requestBody = {
                 model: this.model,
                 messages: this.conversationHistory,
-                stream: true
+                stream: true,
+                options: {
+                    temperature: 0.6,
+                    repeat_penalty: 1.1,
+                    top_p: 0.9,
+                    top_k: 40
+                }
             };
             
             if (this.useThinking) {
