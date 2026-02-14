@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama WebUI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ollama WebUI</h1>
+            <div class="header-buttons">
+                <button class="new-chat-btn" id="newChatBtn" title="开启新对话">
+                    📝
+                </button>
+                <button class="thinking-btn" id="thinkingBtn" title="开启思考功能">
+                    💭
+                </button>
+                <button class="settings-btn" id="settingsBtn" title="设置">
+                    ⚙️
+                </button>
+            </div>
+        </header>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message system">
+                    <div class="message-content">
+                        欢迎使用Ollama WebUI！您可以上传Word或TXT文件，然后与AI进行对话。
+                    </div>
+                </div>
+            </div>
+            <div class="history-markers" id="historyMarkers"></div>
+
+            <div class="input-area">
+                <div class="file-upload-container">
+                    <input type="file" id="fileInput" accept=".txt,.doc,.docx,.pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp" multiple>
+                    <button class="upload-btn" id="uploadBtn">
+                        <span>📁 上传文件</span>
+                    </button>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <div class="message-input-container">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="输入您的消息..." 
+                        rows="3"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn">
+                        <span>发送</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>设置</h2>
+                <button class="close-btn" id="closeModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label for="modelSelect">模型:</label>
+                    <select id="modelSelect">
+                        <option value="">加载中...</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="apiUrlInput">API地址:</label>
+                    <input 
+                        type="text" 
+                        id="apiUrlInput" 
+                        placeholder="例如: http://localhost:11434/api/chat"
+                    >
+                </div>
+                <div class="setting-actions">
+                    <button class="save-btn" id="saveSettingsBtn">保存</button>
+                    <button class="export-btn" id="exportHistoryBtn">导出历史</button>
+                    <button class="import-btn" id="importHistoryBtn">导入历史</button>
+                    <input type="file" id="historyFileInput" accept=".json" style="display: none;">
+                    <button class="cancel-btn" id="cancelSettingsBtn">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js"></script>
+    <script>
+        // 配置pdf.js
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+        }
+    </script>
+    <script src="app.js"></script></div>
+
+    <div class="author-info">
+        开发人员：常旭、刘亚鑫
+    </div>
+</body>
+</html>
