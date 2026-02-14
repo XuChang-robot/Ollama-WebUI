@@ -8,6 +8,11 @@ class OllamaWebUI {
         this.useThinking = false;
         this.currentRequest = null;
         this.abortController = null;
+        // 模型生成参数
+        this.temperature = 0.6;
+        this.repeatPenalty = 1.1;
+        this.topP = 0.9;
+        this.topK = 40;
         
         this.loadSettings();
         this.initElements();
@@ -37,6 +42,11 @@ class OllamaWebUI {
         this.cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
         this.modelSelect = document.getElementById('modelSelect');
         this.apiUrlInput = document.getElementById('apiUrlInput');
+        this.modelParams = document.getElementById('modelParams');
+        this.temperatureInput = document.getElementById('temperatureInput');
+        this.repeatPenaltyInput = document.getElementById('repeatPenaltyInput');
+        this.topPInput = document.getElementById('topPInput');
+        this.topKInput = document.getElementById('topKInput');
         this.thinkingBtn = document.getElementById('thinkingBtn');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.historyMarkers = document.getElementById('historyMarkers');
@@ -87,6 +97,19 @@ class OllamaWebUI {
             this.historyFileInput.addEventListener('change', (e) => this.importConversationHistory(e));
         }
 
+        if (this.temperatureInput) {
+            this.temperatureInput.addEventListener('input', () => this.updateParamDisplay());
+        }
+        if (this.repeatPenaltyInput) {
+            this.repeatPenaltyInput.addEventListener('input', () => this.updateParamDisplay());
+        }
+        if (this.topPInput) {
+            this.topPInput.addEventListener('input', () => this.updateParamDisplay());
+        }
+        if (this.topKInput) {
+            this.topKInput.addEventListener('input', () => this.updateParamDisplay());
+        }
+
         this.messagesContainer.addEventListener('scroll', () => {
             // 检测用户是否滚动到了非底部位置
             const isNearBottom = this.messagesContainer.scrollTop + this.messagesContainer.clientHeight >= this.messagesContainer.scrollHeight - 50;
@@ -113,6 +136,10 @@ class OllamaWebUI {
     loadSettings() {
         const savedModel = localStorage.getItem('ollamaModel');
         const savedApiUrl = localStorage.getItem('ollamaApiUrl');
+        const savedTemperature = localStorage.getItem('ollamaTemperature');
+        const savedRepeatPenalty = localStorage.getItem('ollamaRepeatPenalty');
+        const savedTopP = localStorage.getItem('ollamaTopP');
+        const savedTopK = localStorage.getItem('ollamaTopK');
         
         if (savedModel) {
             this.model = savedModel;
@@ -120,6 +147,22 @@ class OllamaWebUI {
         
         if (savedApiUrl) {
             this.ollamaUrl = savedApiUrl;
+        }
+        
+        if (savedTemperature) {
+            this.temperature = parseFloat(savedTemperature);
+        }
+        
+        if (savedRepeatPenalty) {
+            this.repeatPenalty = parseFloat(savedRepeatPenalty);
+        }
+        
+        if (savedTopP) {
+            this.topP = parseFloat(savedTopP);
+        }
+        
+        if (savedTopK) {
+            this.topK = parseInt(savedTopK);
         }
         
         this.loadConversationHistory();
@@ -400,6 +443,10 @@ class OllamaWebUI {
     openSettings() {
         this.modelSelect.value = this.model;
         this.apiUrlInput.value = this.ollamaUrl;
+        this.temperatureInput.value = this.temperature;
+        this.repeatPenaltyInput.value = this.repeatPenalty;
+        this.topPInput.value = this.topP;
+        this.topKInput.value = this.topK;
         this.settingsModal.classList.add('show');
         this.loadModels();
     }
@@ -411,6 +458,10 @@ class OllamaWebUI {
     async saveSettings() {
         const newModel = this.modelSelect.value.trim();
         const newApiUrl = this.apiUrlInput.value.trim();
+        const newTemperature = parseFloat(this.temperatureInput.value);
+        const newRepeatPenalty = parseFloat(this.repeatPenaltyInput.value);
+        const newTopP = parseFloat(this.topPInput.value);
+        const newTopK = parseInt(this.topKInput.value);
 
         if (!newModel) {
             alert('请选择模型');
@@ -422,21 +473,59 @@ class OllamaWebUI {
             return;
         }
 
+        if (isNaN(newTemperature) || newTemperature < 0 || newTemperature > 2) {
+            alert('请输入有效的Temperature值 (0.0-2.0)');
+            return;
+        }
+
+        if (isNaN(newRepeatPenalty) || newRepeatPenalty < 1 || newRepeatPenalty > 2) {
+            alert('请输入有效的Repeat Penalty值 (1.0-2.0)');
+            return;
+        }
+
+        if (isNaN(newTopP) || newTopP < 0 || newTopP > 1) {
+            alert('请输入有效的Top P值 (0.0-1.0)');
+            return;
+        }
+
+        if (isNaN(newTopK) || newTopK < 1 || newTopK > 100) {
+            alert('请输入有效的Top K值 (1-100)');
+            return;
+        }
+
         this.saveSettingsBtn.disabled = true;
         this.saveSettingsBtn.innerHTML = '<span class="loading"></span>';
 
         try {
             const oldModel = this.model;
+            const modelChanged = oldModel !== newModel;
+            
+            // 保存前读取旧参数
+            const oldTemperature = parseFloat(localStorage.getItem('ollamaTemperature') || '0.6');
+            const oldRepeatPenalty = parseFloat(localStorage.getItem('ollamaRepeatPenalty') || '1.1');
+            const oldTopP = parseFloat(localStorage.getItem('ollamaTopP') || '0.9');
+            const oldTopK = parseInt(localStorage.getItem('ollamaTopK') || '40');
+            
             this.model = newModel;
             this.ollamaUrl = newApiUrl;
+            this.temperature = newTemperature;
+            this.repeatPenalty = newRepeatPenalty;
+            this.topP = newTopP;
+            this.topK = newTopK;
 
             localStorage.setItem('ollamaModel', this.model);
             localStorage.setItem('ollamaApiUrl', this.ollamaUrl);
+            localStorage.setItem('ollamaTemperature', this.temperature);
+            localStorage.setItem('ollamaRepeatPenalty', this.repeatPenalty);
+            localStorage.setItem('ollamaTopP', this.topP);
+            localStorage.setItem('ollamaTopK', this.topK);
 
             this.updateHeaderTitle();
             this.closeSettings();
             
-            this.addMessage(`正在切换模型：${oldModel} → ${this.model}`, 'system');
+            if (modelChanged) {
+                this.addMessage(`正在切换模型：${oldModel} → ${this.model}`, 'system');
+            }
             
             try {
                 const controller = new AbortController();
@@ -452,10 +541,10 @@ class OllamaWebUI {
                         messages: [{ role: 'user', content: '你好' }],
                         stream: false,
                         options: {
-                            temperature: 0.6,
-                            repeat_penalty: 1.1,
-                            top_p: 0.9,
-                            top_k: 40
+                            temperature: this.temperature,
+                            repeat_penalty: this.repeatPenalty,
+                            top_p: this.topP,
+                            top_k: this.topK
                         }
                     }),
                     signal: controller.signal
@@ -479,7 +568,19 @@ class OllamaWebUI {
                     throw new Error('模型响应格式不正确');
                 }
 
-                this.addMessage(`模型切换成功：${this.model}`, 'system');
+                if (modelChanged) {
+                    this.addMessage(`模型切换成功：${this.model}`, 'system');
+                } else {
+                    const paramsChanged = 
+                        Math.abs(oldTemperature - this.temperature) >= 0.001 ||
+                        Math.abs(oldRepeatPenalty - this.repeatPenalty) >= 0.001 ||
+                        Math.abs(oldTopP - this.topP) >= 0.001 ||
+                        oldTopK !== this.topK;
+                    
+                    if (paramsChanged) {
+                        this.addMessage('模型参数已更新', 'system');
+                    }
+                }
             } catch (testError) {
                 console.error('模型测试错误:', testError);
                 this.addMessage(`模型切换警告：${testError.message}`, 'system');
@@ -499,6 +600,41 @@ class OllamaWebUI {
             headerTitle.textContent = `Ollama WebUI - ${this.model}`;
         }
         document.title = `Ollama WebUI - ${this.model}`;
+    }
+
+
+
+    updateParamDisplay() {
+        // 更新WebUI请求参数显示
+        const temperature = parseFloat(this.temperatureInput?.value) || this.temperature;
+        const repeatPenalty = parseFloat(this.repeatPenaltyInput?.value) || this.repeatPenalty;
+        const topP = parseFloat(this.topPInput?.value) || this.topP;
+        const topK = parseInt(this.topKInput?.value) || this.topK;
+
+        const webuiParams = {
+            temperature: temperature,
+            repeat_penalty: repeatPenalty,
+            top_p: topP,
+            top_k: topK
+        };
+
+        let html = '<div class="webui-params-section">';
+        html += '<h4 style="font-size: 13px;">WebUI请求参数</h4>';
+        html += '<p style="color: #666; font-size: 12px;">WebUI每次请求都会传递以下参数:</p>';
+        html += '<div style="background: #f0f8ff; padding: 10px; border-radius: 6px; font-size: 12px; margin-top: 5px;">';
+        html += `<pre>options: {
+  temperature: ${webuiParams.temperature},
+  repeat_penalty: ${webuiParams.repeat_penalty},
+  top_p: ${webuiParams.top_p},
+  top_k: ${webuiParams.top_k}
+}</pre>`;
+        html += '</div>';
+        html += '</div>';
+
+        if (this.modelParams) {
+            this.modelParams.innerHTML = html;
+            this.modelParams.classList.add('show');
+        }
     }
 
     newChat() {
@@ -825,10 +961,10 @@ ${pageText}\n\n`;
                 messages: this.conversationHistory,
                 stream: true,
                 options: {
-                    temperature: 0.6,
-                    repeat_penalty: 1.1,
-                    top_p: 0.9,
-                    top_k: 40
+                    temperature: this.temperature,
+                    repeat_penalty: this.repeatPenalty,
+                    top_p: this.topP,
+                    top_k: this.topK
                 }
             };
             
@@ -840,7 +976,8 @@ ${pageText}\n\n`;
                 url: this.ollamaUrl,
                 model: this.model,
                 messageCount: this.conversationHistory.length,
-                hasImages: this.conversationHistory.some(msg => msg.images && msg.images.length > 0)
+                hasImages: this.conversationHistory.some(msg => msg.images && msg.images.length > 0),
+                options: requestBody.options
             });
 
             const response = await fetch(this.ollamaUrl, {

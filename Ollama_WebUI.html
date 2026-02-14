@@ -77,6 +77,30 @@
                         placeholder="例如: http://localhost:11434/api/chat"
                     >
                 </div>
+                <div class="setting-item">
+                    <label>模型参数:</label>
+                    <div class="param-inputs" style="margin-top: 15px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Temperature (0.0-2.0):</label>
+                                <input type="number" id="temperatureInput" step="0.1" min="0" max="2" value="0.6" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Repeat Penalty (1.0-2.0):</label>
+                                <input type="number" id="repeatPenaltyInput" step="0.1" min="1" max="2" value="1.1" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Top P (0.0-1.0):</label>
+                                <input type="number" id="topPInput" step="0.05" min="0" max="1" value="0.9" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #666;">Top K (1-100):</label>
+                                <input type="number" id="topKInput" step="1" min="1" max="100" value="40" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="modelParams" class="model-params"></div>
+                </div>
                 <div class="setting-actions">
                     <button class="save-btn" id="saveSettingsBtn">保存</button>
                     <button class="export-btn" id="exportHistoryBtn">导出历史</button>

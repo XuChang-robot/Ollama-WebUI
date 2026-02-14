@@ -516,6 +516,69 @@ header h1 {
     border-color: #667eea;
 }
 
+.check-params-btn {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+}
+
+.check-params-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.model-params {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
+    display: none;
+}
+
+.model-params.show {
+    display: block;
+}
+
+.model-params h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.model-params .param-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.model-params .param-item:last-child {
+    border-bottom: none;
+}
+
+.model-params .param-name {
+    color: #666;
+    font-weight: 500;
+}
+
+.model-params .param-value {
+    color: #333;
+    font-weight: 600;
+}
+
 .setting-actions {
     display: flex;
     gap: 10px;
